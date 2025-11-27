@@ -1,3 +1,18 @@
 spring:
   application:
     name: ai-procure-backend
+  datasource:
+    password: ai_password
+    url: jdbc:postgresql://db:5432/ai_procure
+    username: ai_user
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
+
+ml:
+  url: http://ml_service_app:8000

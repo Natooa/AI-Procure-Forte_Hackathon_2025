@@ -47,7 +47,7 @@ the docker container run -p 8000:8000 ml_service_app
 
 if needed in the background
 , docker run -d -p 8000:8000 --name ml_service ml_service_app
-
+    
 view logs 
 docker logs -f ml_service
 
@@ -72,3 +72,10 @@ the docker build image -t ml_service_app .
 
 go inside the container 
 docker exec -it ml_service bash
+
+
+
+
+
+P.S:
+the start of application can take some time be patient!

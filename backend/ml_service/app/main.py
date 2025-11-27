@@ -18,24 +18,28 @@ from . import globals as g
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Инициализация моделей
-    init_embed_model()
-    init_ner_pipeline()
+    tasks = [
+        asyncio.to_thread(init_embed_model),
+        asyncio.to_thread(init_ner_pipeline),
+        asyncio.to_thread(load_suppliers),
+        asyncio.to_thread(load_rnu),
+        asyncio.to_thread(update_embeddings)
+    ]
 
-    # Загрузка данных
-    load_suppliers()
-    load_rnu()
-    update_embeddings()
+    # Запуск всех задач параллельно
+    await asyncio.gather(*tasks)
 
-    # Загрузка или обучение risk модели
+    # Загружаем или тренируем risk модель
     if RISK_MODEL_PATH.exists() and RISK_SCALER_PATH.exists():
-        g.RISK_MODEL = joblib.load(RISK_MODEL_PATH)
-        g.SCALER = joblib.load(RISK_SCALER_PATH)
+        g.RISK_MODEL = await asyncio.to_thread(joblib.load, RISK_MODEL_PATH)
+        g.SCALER = await asyncio.to_thread(joblib.load, RISK_SCALER_PATH)
         print("[INFO] Risk model loaded from disk")
     else:
-        train_risk_model()
+        await asyncio.to_thread(train_risk_model)
 
-    # Запуск фоновой задачи
+    # Фоновая задача для автообновления
     asyncio.create_task(auto_update())
+
     yield
 
 

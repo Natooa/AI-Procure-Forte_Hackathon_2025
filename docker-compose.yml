@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    container_name: ai_procure_db
+    environment:
+      POSTGRES_DB: ai_procure
+      POSTGRES_USER: ai_user
+      POSTGRES_PASSWORD: ai_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend/ai-procure-backend
+    container_name: ai_procure_backend
+    depends_on:
+      - db
+      - ml_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/ai_procure
+      SPRING_DATASOURCE_USERNAME: ai_user
+      SPRING_DATASOURCE_PASSWORD: ai_password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      ML_SERVICE_URL: http://ml_service:8000
+    ports:
+      - "8080:8080"
+
+  ml_service:
+    build:
+      context: ./backend/ml_service
+    container_name: ml_service
+    ports:
+      - "8000:8000"
+    environment:
+      HF_HUB_REQUEST_TIMEOUT: 60
+      HF_HUB_RETRIES: 10
+    volumes:
+      - huggingface_cache:/root/.cache/huggingface
+
+volumes:
+  db_data:
+  huggingface_cache:
