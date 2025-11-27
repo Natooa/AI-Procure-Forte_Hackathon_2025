@@ -75,13 +75,16 @@ public class TenderService {
     }
 
     public Tender ingestFromUrl(String url) {
-        String text = textParser.parseUrl(url);
-        return ingestFromText(text);
+        Tender tender = textParser.parseUrlToTender(url); // получаем Tender
+        return ingestFromText(tender.getRawText());       // используем rawText для ML
     }
 
     public Tender ingestFromFile(MultipartFile file) {
-        String text = textParser.parseFile(file);
-        return ingestFromText(text);
+        // Если parseFile ещё не реализован, можно временно fallback:
+        Tender tender = new Tender();
+        tender.setRawText("File parsing not implemented");
+        tender.setFallback(true);
+        return ingestFromText(tender.getRawText());
     }
 
     public Tender getById(Long id) {

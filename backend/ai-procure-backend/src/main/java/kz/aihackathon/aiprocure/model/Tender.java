@@ -9,6 +9,8 @@ import java.util.Map;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Tender {
 
     @Id
@@ -17,19 +19,26 @@ public class Tender {
 
     private String rawText;
 
-    @Column(columnDefinition = "jsonb")
     @Convert(converter = MapToJsonConverter.class)
+    @Column(columnDefinition = "jsonb")
     private Map<String, Object> extractedFields;
 
-    @Column(columnDefinition = "jsonb")
     @Convert(converter = MapToJsonConverter.class)
+    @Column(columnDefinition = "jsonb")
     private Map<String, Object> supplierMatches;
 
-    @Column(columnDefinition = "jsonb")
     @Convert(converter = MapToJsonConverter.class)
+    @Column(columnDefinition = "jsonb")
     private Map<String, Object> riskAnalysis;
 
     private Boolean fallback = false;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }
